@@ -1,0 +1,7 @@
+{
+    "python.formatting.provider": "autopep8",
+    "python.linting.mypyEnabled": false,
+    "python.linting.banditEnabled": true,
+    "python.linting.enabled": true,
+    "python.pythonPath": "C:\\Users\\simon\\AppData\\Local\\Programs\\Python\\Python37\\python.exe"
+}
