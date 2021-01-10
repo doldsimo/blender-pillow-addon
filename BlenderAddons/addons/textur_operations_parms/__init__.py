@@ -1,9 +1,11 @@
 import bpy
 import ptvsd
 
+
 from PIL import Image
 from PIL import ImageOps
 
+from . import sepia
 
 bl_info = {
     "name": "Textur operations parms",
@@ -18,6 +20,7 @@ bl_info = {
 
 
 ptvsd.enable_attach()
+
 
 
 class TexturOperationsParms(bpy.types.Operator, bpy.types.StringProperty):
@@ -61,6 +64,18 @@ class TexturOperationsParms(bpy.types.Operator, bpy.types.StringProperty):
         default=False
     )
 
+    blackAndWhite = bpy.props.BoolProperty(
+        name='Black and White',
+        description='Black and White filter',
+        default=False
+    )
+
+    sepia = bpy.props.BoolProperty(
+        name='Sepia',
+        description='Sepia Filter',
+        default=False
+    )
+
     rotate = bpy.props.IntProperty(
         name="Rotate",
         description="Rotate in degree",
@@ -89,6 +104,13 @@ class TexturOperationsParms(bpy.types.Operator, bpy.types.StringProperty):
                     im = ImageOps.grayscale(im)
                 if(self.invert):
                     im = ImageOps.invert(im)
+                if(self.sepia):
+                    im = sepia.convert_sepia(im)
+                if(self.blackAndWhite):
+                    thresh = 100
+                    fn = lambda x : 255 if x > thresh else 0
+                    im = im.convert('L').point(fn, mode='1')
+
                 im = im.rotate(self.rotate)
                 im.save(newPath)
 
