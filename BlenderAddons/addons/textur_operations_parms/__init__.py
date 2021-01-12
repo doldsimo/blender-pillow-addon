@@ -114,14 +114,25 @@ class TexturOperationsParms(bpy.types.Operator, bpy.types.StringProperty):
                 im = im.rotate(self.rotate)
                 im.save(newPath)
 
-                mat = bpy.data.materials.new(name="New_Mat")
-                mat.use_nodes = True
-                bsdf = mat.node_tree.nodes["Principled BSDF"]
-                texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
-                texImage.image = bpy.data.images.load(newPath)
-                mat.node_tree.links.new(
-                    bsdf.inputs['Base Color'], texImage.outputs['Color'])
                 ob = context.view_layer.objects.active
+                if(ob.active_material is None):
+                    print("New Material")
+                    mat = bpy.data.materials.new(name="New_Mat")
+                    mat.use_nodes = True
+                    bsdf = mat.node_tree.nodes["Principled BSDF"]
+                    texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+                    texImage.image = bpy.data.images.load(newPath)
+                    mat.node_tree.links.new(
+                        bsdf.inputs['Base Color'], texImage.outputs['Color'])
+                else:
+                    print("Existing Material")
+                    mat = ob.active_material
+                    mat.use_nodes = True
+                    bsdf = mat.node_tree.nodes["Principled BSDF"]
+                    texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+                    texImage.image = bpy.data.images.load(newPath)
+                    mat.node_tree.links.new(
+                        bsdf.inputs['Base Color'], texImage.outputs['Color'])
 
                 # Assign it to object
                 ob.data.materials[0] = mat
