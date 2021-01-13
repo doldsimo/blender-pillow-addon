@@ -13,7 +13,7 @@ from bpy.props import (StringProperty,
                        PointerProperty,
                        )
 
-                       
+
 from PIL import Image
 from PIL import ImageOps
 
@@ -71,10 +71,22 @@ class AllProperties(PropertyGroup):
         update=UpdatedFunction
     )
 
-    invert: bpy.props.BoolProperty(
-        name='Invert',
-        description='Invert image',
+
+    # Filters
+
+    black_And_White: bpy.props.BoolProperty(
+        name='Black/White',
+        description='Black and White filter',
         default=False,
+        update=UpdatedFunction
+    )
+
+    black_And_White_Thresh: bpy.props.IntProperty(
+        name="Black/White threshold",
+        description="Black/White threshold",
+        default=100,
+        min=0,
+        max=255,
         update=UpdatedFunction
     )
 
@@ -85,10 +97,9 @@ class AllProperties(PropertyGroup):
         update=UpdatedFunction
     )
 
-    # Filters
-    black_And_White: bpy.props.BoolProperty(
-        name='Black and White',
-        description='Black and White filter',
+    invert: bpy.props.BoolProperty(
+        name='Invert',
+        description='Invert image',
         default=False,
         update=UpdatedFunction
     )
@@ -100,6 +111,7 @@ class AllProperties(PropertyGroup):
         update=UpdatedFunction
     )
 
+    # Transformations
     rotate: bpy.props.IntProperty(
         name="Rotate",
         description="Rotate in degree",
@@ -158,9 +170,9 @@ class Image_Correction_Panel(Panel):
         layout.prop(mytool, "root_folder")
 
 
-class Panel_3(Panel):
-    bl_label = "Panel_3"
-    bl_idname = "OBJECT_PT_custom_panel_3"
+class Filter_Panel(Panel):
+    bl_label = "Filters"
+    bl_idname = "OBJECT_PT_custom_panel_filter"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Image Editing"
@@ -176,6 +188,29 @@ class Panel_3(Panel):
         mytool = scene.my_tool
 
         layout.prop(mytool, "black_And_White")
+        layout.prop(mytool, "black_And_White_Thresh")
+        layout.prop(mytool, "invert")
+        layout.prop(mytool, "greyscale")
+
+class Transformations_Panel(Panel):
+    bl_label = "Transformations"
+    bl_idname = "OBJECT_PT_custom_panel_transformations"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Image Editing"
+    bl_context = "objectmode"
+
+    @classmethod
+    def poll(self, context):
+        return context.object is not None
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        mytool = scene.my_tool
+
+        layout.prop(mytool, "rotate")
+         
 # ------------------------------------------------------------------------
 #    Operators
 # ------------------------------------------------------------------------
@@ -217,7 +252,7 @@ class WM_OT_HelloWorld(Operator):
                 if(mytool.sepia):
                     im = sepia.convert_sepia(im)
                 if(mytool.black_And_White):
-                    thresh = 100
+                    thresh = mytool.black_And_White_Thresh
                     def fn(x): return 255 if x > thresh else 0
                     im = im.convert('L').point(fn, mode='1')
 
@@ -259,7 +294,8 @@ classes = (
     WM_OT_HelloWorld,
     Image_Panel,
     Image_Correction_Panel,
-    Panel_3
+    Filter_Panel,
+    Transformations_Panel
 )
 
 
