@@ -1,7 +1,19 @@
 import bpy
-import ptvsd
+from bpy.types import (Panel,
+                       Menu,
+                       Operator,
+                       PropertyGroup,
+                       )
+from bpy.props import (StringProperty,
+                       BoolProperty,
+                       IntProperty,
+                       FloatProperty,
+                       FloatVectorProperty,
+                       EnumProperty,
+                       PointerProperty,
+                       )
 
-
+                       
 from PIL import Image
 from PIL import ImageOps
 
@@ -19,99 +31,197 @@ bl_info = {
 }
 
 
-ptvsd.enable_attach()
+# ------------------------------------------------------------------------
+#   Properties
+# ------------------------------------------------------------------------
+
+def UpdatedFunction(self, context):
+    print("-------------------In update func...-------------------")
+    WM_OT_HelloWorld.execute(self, context)
+    return
 
 
+class AllProperties(PropertyGroup):
 
-class TexturOperationsParms(bpy.types.Operator, bpy.types.StringProperty):
-
-    bl_idname = "textur.operations_parms"
-    bl_label = "Change image with operations"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    root_folder : bpy.props.StringProperty(
-        name="File path",
+    # Load Image
+    root_folder: bpy.props.StringProperty(
+        name="Path",
         description="Some elaborate description",
         default="",
         maxlen=1024,
-        subtype="FILE_PATH"
+        subtype="FILE_PATH",
+        update=UpdatedFunction
     )
 
-    new_image_name : bpy.props.StringProperty(
-        name="File name",
+    new_image_name: bpy.props.StringProperty(
+        name="New name",
         description="Some elaborate description",
         default="",
-        maxlen=1024
+        maxlen=500,
+        update=UpdatedFunction
     )
 
-    solarize_threshold : bpy.props.IntProperty(
+    # Corrections
+    solarize_threshold: bpy.props.IntProperty(
         name="Solarize threshold",
         description="Solarize threshold",
         default=255,
         min=0,
-        max=255
+        max=255,
+        update=UpdatedFunction
     )
 
-    invert : bpy.props.BoolProperty(
+    invert: bpy.props.BoolProperty(
         name='Invert',
         description='Invert image',
-        default=False
+        default=False,
+        update=UpdatedFunction
     )
 
-    greyscale : bpy.props.BoolProperty(
+    greyscale: bpy.props.BoolProperty(
         name='Greyscale',
         description='Image in Greyscale',
-        default=False
+        default=False,
+        update=UpdatedFunction
     )
 
-    blackAndWhite : bpy.props.BoolProperty(
+    # Filters
+    black_And_White: bpy.props.BoolProperty(
         name='Black and White',
         description='Black and White filter',
-        default=False
+        default=False,
+        update=UpdatedFunction
     )
 
-    sepia : bpy.props.BoolProperty(
+    sepia: bpy.props.BoolProperty(
         name='Sepia',
         description='Sepia Filter',
-        default=False
+        default=False,
+        update=UpdatedFunction
     )
 
-    rotate : bpy.props.IntProperty(
+    rotate: bpy.props.IntProperty(
         name="Rotate",
         description="Rotate in degree",
         default=0,
         min=0,
         max=360,
+        update=UpdatedFunction
     )
 
-    def execute(self, context):
 
-        if(self.root_folder):
-            imList = self.root_folder.rsplit("\\", 1)
+# ------------------------------------------------------------------------
+#    Panel in Object Mode
+# ------------------------------------------------------------------------
+
+
+class Image_Panel(Panel):
+    bl_label = "Load Image"
+    bl_idname = "OBJECT_PT_custom_panel_Image"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Image Editing"
+    bl_context = "objectmode"
+
+    @classmethod
+    def poll(self, context):
+        return context.object is not None
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        mytool = scene.my_tool
+
+        layout.prop(mytool, "root_folder")
+        layout.prop(mytool, "new_image_name")
+
+
+class Image_Correction_Panel(Panel):
+    bl_label = "Correction"
+    bl_idname = "OBJECT_PT_custom_panel_image_correction"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Image Editing"
+    bl_context = "objectmode"
+
+    @classmethod
+    def poll(self, context):
+        return context.object is not None
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        mytool = scene.my_tool
+
+        # TODO: Add Correcturs
+
+        layout.prop(mytool, "root_folder")
+
+
+class Panel_3(Panel):
+    bl_label = "Panel_3"
+    bl_idname = "OBJECT_PT_custom_panel_3"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Image Editing"
+    bl_context = "objectmode"
+
+    @classmethod
+    def poll(self, context):
+        return context.object is not None
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        mytool = scene.my_tool
+
+        layout.prop(mytool, "black_And_White")
+# ------------------------------------------------------------------------
+#    Operators
+# ------------------------------------------------------------------------
+
+
+class WM_OT_HelloWorld(Operator):
+    bl_label = "Apply"
+    bl_idname = "textur.pillow_image_editing"
+
+    def execute(self, context):
+        scene = context.scene
+        mytool = scene.my_tool
+
+        # print the values to the console
+        print("Data:")
+        print("Path:", mytool.root_folder)
+        print("New Image Name:", mytool.new_image_name)
+        print("Boolean_2:", "dfadsf")
+
+        if(mytool.root_folder):
+            imList = mytool.root_folder.rsplit("\\", 1)
 
             imPath = imList[0]
             fileOldName = imList[1]
 
             fileType = fileOldName.rsplit(".", 1)
 
-            if(self.new_image_name):
-                newPath = imPath + "\\" + self.new_image_name + "." + fileType[1]
-                
-                im = Image.open(self.root_folder)
-                print(self.root_folder)
-                im = ImageOps.solarize(im, self.solarize_threshold)
-                if(self.greyscale):
+            if(mytool.new_image_name):
+                newPath = imPath + "\\" + \
+                    mytool.new_image_name + "." + fileType[1]
+
+                im = Image.open(mytool.root_folder)
+                print(mytool.root_folder)
+                im = ImageOps.solarize(im, mytool.solarize_threshold)
+                if(mytool.greyscale):
                     im = ImageOps.grayscale(im)
-                if(self.invert):
+                if(mytool.invert):
                     im = ImageOps.invert(im)
-                if(self.sepia):
+                if(mytool.sepia):
                     im = sepia.convert_sepia(im)
-                if(self.blackAndWhite):
+                if(mytool.black_And_White):
                     thresh = 100
-                    fn = lambda x : 255 if x > thresh else 0
+                    def fn(x): return 255 if x > thresh else 0
                     im = im.convert('L').point(fn, mode='1')
 
-                im = im.rotate(self.rotate)
+                im = im.rotate(mytool.rotate)
                 im.save(newPath)
 
                 ob = context.view_layer.objects.active
@@ -136,16 +246,38 @@ class TexturOperationsParms(bpy.types.Operator, bpy.types.StringProperty):
 
                 # Assign it to object
                 ob.data.materials[0] = mat
+
         return {'FINISHED'}
+
+# ------------------------------------------------------------------------
+#    Registration
+# ------------------------------------------------------------------------
+
+
+classes = (
+    AllProperties,
+    WM_OT_HelloWorld,
+    Image_Panel,
+    Image_Correction_Panel,
+    Panel_3
+)
 
 
 def register():
-    print("Registering Textur Operations Parms")
-    bpy.utils.register_class(TexturOperationsParms)
-    # bpy.utils.register_class(OHA_QuickLink_Props)
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+    bpy.types.Scene.my_tool = PointerProperty(type=AllProperties)
+    print("Aktivate Pillow-Blender-Addon")
 
 
 def unregister():
-    print("Unregistering Textur Operations Parms")
-    bpy.utils.unregister_class(TexturOperationsParms)
-    # bpy.utils.unregister_class(OHA_QuickLink_Props)
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+    del bpy.types.Scene.my_tool
+    print("Deaktivate Pillow-Blender-Addon")
+
+
+# if __name__ == "__main__":
+#     register()
