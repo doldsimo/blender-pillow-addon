@@ -29,7 +29,7 @@ class TexturOperationsParms(bpy.types.Operator, bpy.types.StringProperty):
     bl_label = "Change image with operations"
     bl_options = {'REGISTER', 'UNDO'}
 
-    root_folder = bpy.props.StringProperty(
+    root_folder : bpy.props.StringProperty(
         name="File path",
         description="Some elaborate description",
         default="",
@@ -37,14 +37,14 @@ class TexturOperationsParms(bpy.types.Operator, bpy.types.StringProperty):
         subtype="FILE_PATH"
     )
 
-    new_image_name = bpy.props.StringProperty(
+    new_image_name : bpy.props.StringProperty(
         name="File name",
         description="Some elaborate description",
         default="",
         maxlen=1024
     )
 
-    solarize_threshold = bpy.props.IntProperty(
+    solarize_threshold : bpy.props.IntProperty(
         name="Solarize threshold",
         description="Solarize threshold",
         default=255,
@@ -52,31 +52,31 @@ class TexturOperationsParms(bpy.types.Operator, bpy.types.StringProperty):
         max=255
     )
 
-    invert = bpy.props.BoolProperty(
+    invert : bpy.props.BoolProperty(
         name='Invert',
         description='Invert image',
         default=False
     )
 
-    greyscale = bpy.props.BoolProperty(
+    greyscale : bpy.props.BoolProperty(
         name='Greyscale',
         description='Image in Greyscale',
         default=False
     )
 
-    blackAndWhite = bpy.props.BoolProperty(
+    blackAndWhite : bpy.props.BoolProperty(
         name='Black and White',
         description='Black and White filter',
         default=False
     )
 
-    sepia = bpy.props.BoolProperty(
+    sepia : bpy.props.BoolProperty(
         name='Sepia',
         description='Sepia Filter',
         default=False
     )
 
-    rotate = bpy.props.IntProperty(
+    rotate : bpy.props.IntProperty(
         name="Rotate",
         description="Rotate in degree",
         default=0,
