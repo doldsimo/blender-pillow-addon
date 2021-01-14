@@ -71,7 +71,6 @@ class AllProperties(PropertyGroup):
         update=UpdatedFunction
     )
 
-
     # Filters
 
     black_And_White: bpy.props.BoolProperty(
@@ -118,6 +117,20 @@ class AllProperties(PropertyGroup):
         default=0,
         min=0,
         max=360,
+        update=UpdatedFunction
+    )
+
+    flip_vertically: bpy.props.BoolProperty(
+        name='Flip vertically',
+        description='Flip vertically',
+        default=False,
+        update=UpdatedFunction
+    )
+
+    flip_horizontally: bpy.props.BoolProperty(
+        name='Flip horizontally',
+        description='Flip horizontally',
+        default=False,
         update=UpdatedFunction
     )
 
@@ -192,6 +205,7 @@ class Filter_Panel(Panel):
         layout.prop(mytool, "invert")
         layout.prop(mytool, "greyscale")
 
+
 class Transformations_Panel(Panel):
     bl_label = "Transformations"
     bl_idname = "OBJECT_PT_custom_panel_transformations"
@@ -210,7 +224,9 @@ class Transformations_Panel(Panel):
         mytool = scene.my_tool
 
         layout.prop(mytool, "rotate")
-         
+        layout.prop(mytool, "flip_vertically")
+        layout.prop(mytool, "flip_horizontally")
+
 # ------------------------------------------------------------------------
 #    Operators
 # ------------------------------------------------------------------------
@@ -255,6 +271,10 @@ class WM_OT_HelloWorld(Operator):
                     thresh = mytool.black_And_White_Thresh
                     def fn(x): return 255 if x > thresh else 0
                     im = im.convert('L').point(fn, mode='1')
+                if(mytool.flip_vertically):
+                    im = ImageOps.flip(im)
+                if(mytool.flip_horizontally):
+                    im = ImageOps.mirror(im)
 
                 im = im.rotate(mytool.rotate)
                 im.save(newPath)
