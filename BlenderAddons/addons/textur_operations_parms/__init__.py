@@ -134,6 +134,15 @@ class AllProperties(PropertyGroup):
         update=UpdatedFunction
     )
 
+    scale_image: bpy.props.FloatProperty(
+        name="Scale",
+        description="Scale",
+        default=1.0,
+        min=0,
+        max=2,
+        update=UpdatedFunction
+    )
+
 
 # ------------------------------------------------------------------------
 #    Panel in Object Mode
@@ -148,7 +157,7 @@ class Image_Panel(Panel):
     bl_category = "Image Editing"
     bl_context = "objectmode"
 
-    @classmethod
+    @ classmethod
     def poll(self, context):
         return context.object is not None
 
@@ -169,7 +178,7 @@ class Image_Correction_Panel(Panel):
     bl_category = "Image Editing"
     bl_context = "objectmode"
 
-    @classmethod
+    @ classmethod
     def poll(self, context):
         return context.object is not None
 
@@ -191,7 +200,7 @@ class Filter_Panel(Panel):
     bl_category = "Image Editing"
     bl_context = "objectmode"
 
-    @classmethod
+    @ classmethod
     def poll(self, context):
         return context.object is not None
 
@@ -214,7 +223,7 @@ class Transformations_Panel(Panel):
     bl_category = "Image Editing"
     bl_context = "objectmode"
 
-    @classmethod
+    @ classmethod
     def poll(self, context):
         return context.object is not None
 
@@ -226,6 +235,7 @@ class Transformations_Panel(Panel):
         layout.prop(mytool, "rotate")
         layout.prop(mytool, "flip_vertically")
         layout.prop(mytool, "flip_horizontally")
+        layout.prop(mytool, "scale_image")
 
 # ------------------------------------------------------------------------
 #    Operators
@@ -275,6 +285,8 @@ class WM_OT_HelloWorld(Operator):
                     im = ImageOps.flip(im)
                 if(mytool.flip_horizontally):
                     im = ImageOps.mirror(im)
+
+                im = ImageOps.scale(im, mytool.scale_image, Image.BICUBIC)
 
                 im = im.rotate(mytool.rotate)
                 im.save(newPath)
