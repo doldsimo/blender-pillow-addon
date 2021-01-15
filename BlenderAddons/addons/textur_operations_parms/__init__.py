@@ -210,7 +210,8 @@ class Filter_Panel(Panel):
         mytool = scene.my_tool
 
         layout.prop(mytool, "black_And_White")
-        layout.prop(mytool, "black_And_White_Thresh")
+        if(mytool.black_And_White):
+            layout.prop(mytool, "black_And_White_Thresh")
         layout.prop(mytool, "invert")
         layout.prop(mytool, "greyscale")
 
