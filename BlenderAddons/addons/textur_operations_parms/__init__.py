@@ -33,7 +33,6 @@ bl_info = {
     "location": "View 3D > Edit Mode > Mesh",
 }
 
-
 # ------------------------------------------------------------------------
 #   Properties
 # ------------------------------------------------------------------------
@@ -42,7 +41,6 @@ def UpdatedFunction(self, context):
     print("-------------------In update func...-------------------")
     WM_OT_HelloWorld.execute(self, context)
     return
-
 
 class AllProperties(PropertyGroup):
 
@@ -122,7 +120,6 @@ class AllProperties(PropertyGroup):
         max=1,
         precision=2,
         step=1,
-        update=UpdatedFunction
     )
     
     green_value: bpy.props.FloatProperty(
@@ -133,7 +130,6 @@ class AllProperties(PropertyGroup):
         max=1,
         precision=2,
         step=1,
-        update=UpdatedFunction
     )
     
     blue_value: bpy.props.FloatProperty(
@@ -144,8 +140,7 @@ class AllProperties(PropertyGroup):
         max=1,
         precision=2,
         step=1,
-        update=UpdatedFunction
-    )
+    )     
 
     # Image correction
     brightness: bpy.props.FloatProperty(
@@ -241,28 +236,27 @@ class Image_Panel(Panel):
         layout.prop(mytool, "new_image_name")
 
 
-# class Color_Correction_Panel(Panel):
-#     bl_label = "Color Correction"
-#     bl_idname = "OBJECT_PT_custom_panel_color_correction"
-#     bl_space_type = "VIEW_3D"
-#     bl_region_type = "UI"
-#     bl_category = "Image Editing"
-#     # bl_context = "objectmode"
+class Color_Correction_Panel(Panel):
+    bl_label = "Color Correction"
+    bl_idname = "OBJECT_PT_custom_panel_color_correction"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Image Editing"
+    # bl_context = "objectmode"
 
-#     @ classmethod
-#     def poll(self, context):
-#         return context.object is not None
+    @ classmethod
+    def poll(self, context):
+        return context.object is not None
 
-#     def draw(self, context):
-#         layout = self.layout
-#         scene = context.scene
-#         mytool = scene.my_tool
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        mytool = scene.my_tool
 
-#         # TODO: Add Correcturs
-
-#         layout.prop(mytool, "red_value")
-#         layout.prop(mytool, "green_value")
-#         layout.prop(mytool, "blue_value")
+        layout.prop(mytool, "red_value")
+        layout.prop(mytool, "green_value")
+        layout.prop(mytool, "blue_value")
+        layout.operator("apply.colorcorrection")
 
 
 class Image_Correction_Panel(Panel):
@@ -359,6 +353,82 @@ class Magic_Wand_Panel(Panel):
 # ------------------------------------------------------------------------
 #    Operators
 # ------------------------------------------------------------------------
+class ApplyColorCorrection(Operator):
+    bl_label = "Apply"
+    bl_idname = "apply.colorcorrection"
+
+    def execute(self, context):
+        scene = context.scene
+        mytool = scene.my_tool
+        
+        if(mytool.root_folder):
+            imList = mytool.root_folder.rsplit("\\", 1)
+
+            imPath = imList[0]
+            fileOldName = imList[1]
+
+            fileType = fileOldName.rsplit(".", 1)
+
+            if(mytool.new_image_name):
+                newPath = imPath + "\\" + \
+                    mytool.new_image_name + "." + fileType[1]
+
+                im = Image.open(mytool.root_folder)
+                print(mytool.root_folder)
+                
+                # Color Correction
+                [width,height]=im.size
+                for x in range(width):
+                    for y in range(height):
+                        [r,g,b]=im.getpixel((x, y))
+                        r = round(r * mytool.red_value)
+                        if r > 255:
+                            r = 255
+                        if r < 0:
+                            r = 0
+
+                        g = round(g * mytool.green_value)
+                        if g > 255:
+                            g = 255
+                        if g < 0:
+                            g = 0
+
+                        b = round(b * mytool.blue_value)
+                        if b > 255:
+                            b = 255
+                        if b < 0:
+                            b = 0
+                        value = (r,g,b)
+                        im.putpixel((x, y), value)
+
+
+                im.save(newPath)
+
+                ob = context.view_layer.objects.active
+                # if(ob.active_material is None):
+                print("New Material")
+                mat = bpy.data.materials.new(name="New_Mat")
+                mat.use_nodes = True
+                bsdf = mat.node_tree.nodes["Principled BSDF"]
+                texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+                texImage.image = bpy.data.images.load(newPath)
+                mat.node_tree.links.new(
+                    bsdf.inputs['Base Color'], texImage.outputs['Color'])
+                # else:
+                #     print("Existing Material")
+                #     mat = ob.active_material
+                #     mat.use_nodes = True
+                #     bsdf = mat.node_tree.nodes["Principled BSDF"]
+                #     texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+                #     texImage.image = bpy.data.images.load(newPath)
+                #     mat.node_tree.links.new(
+                #         bsdf.inputs['Base Color'], texImage.outputs['Color'])
+
+                # Assign it to object
+                ob.data.materials[0] = mat
+
+        return {'FINISHED'}
+
 class MagicWand(Operator):
     bl_label = "Open Magic Wand"
     bl_idname = "textur.magicwand"
@@ -426,31 +496,7 @@ class WM_OT_HelloWorld(Operator):
                     thresh = mytool.black_And_White_Thresh
                     def fn(x): return 255 if x > thresh else 0
                     im = im.convert('L').point(fn, mode='1')
-                # Color Correction
-                # if(mytool.red_value or mytool.green_value or mytool.blue_value):
-                #     [width,height]=im.size
-                #     for x in range(width):
-                #         for y in range(height):
-                #             [r,g,b]=im.getpixel((x, y))
-                #             r = round(r * mytool.red_value)
-                #             if r > 255:
-                #                 r = 255
-                #             if r < 0:
-                #                 r = 0
-
-                #             g = round(g * mytool.green_value)
-                #             if g > 255:
-                #                 g = 255
-                #             if g < 0:
-                #                 g = 0
-
-                #             b = round(b * mytool.blue_value)
-                #             if b > 255:
-                #                 b = 255
-                #             if b < 0:
-                #                 b = 0
-                #             value = (r,g,b)
-                #             im.putpixel((x, y), value)
+                    
                 # Image Correction
                 if(mytool.brightness):
                     im = ImageEnhance.Brightness(im).enhance(mytool.brightness)
@@ -466,6 +512,8 @@ class WM_OT_HelloWorld(Operator):
                     im = ImageOps.mirror(im)
                 im = ImageOps.scale(im, mytool.scale_image, Image.BICUBIC)
                 im = im.rotate(mytool.rotate)
+
+
                 im.save(newPath)
 
                 ob = context.view_layer.objects.active
@@ -590,9 +638,10 @@ class SelectionWindow:
 classes = (
     AllProperties,
     WM_OT_HelloWorld,
+    ApplyColorCorrection,
     MagicWand,
     Image_Panel,
-    # Color_Correction_Panel,
+    Color_Correction_Panel,
     Image_Correction_Panel,
     Filter_Panel,
     Transformations_Panel,
