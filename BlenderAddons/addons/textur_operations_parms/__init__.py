@@ -1,9 +1,17 @@
 import bpy
 import ptvsd
 
+
 from PIL import Image
 from PIL import ImageOps
 
+from . import sepia
+from magicwand import SelectionWindow
+import cv2 as cv
+
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkcolorpicker import askcolor
 
 bl_info = {
     "name": "Textur operations parms",
@@ -52,6 +60,18 @@ class TexturOperationsParms(bpy.types.Operator, bpy.types.PropertyGroup):
         default=False
     )
 
+    blackAndWhite = bpy.props.BoolProperty(
+        name='Black and White',
+        description='Black and White filter',
+        default=False
+    )
+
+    sepia = bpy.props.BoolProperty(
+        name='Sepia',
+        description='Sepia Filter',
+        default=False
+    )
+
     rotate = bpy.props.IntProperty(
         name="Rotate",
         description="Rotate in degree",
@@ -80,16 +100,37 @@ class TexturOperationsParms(bpy.types.Operator, bpy.types.PropertyGroup):
             bsdf.inputs['Base Color'], texImage.outputs['Color'])
         ob = context.view_layer.objects.active
 
-        # Assign it to object
+                # Assign it to object
         ob.data.materials[0] = mat
         return {'FINISHED'}
 
 
+    
+    #Zauberstab
+    #img = cv.imread("C:\\Users\\chris\\Desktop\\taylor-volek-space-orc-weak-male-04.jpg")
+    #window = SelectionWindow(img)
+    #window.show()
+
+#Pipette
+root = Tk()
+root.title("Pipette")
+root.geometry("400x400")
+
+def color():
+    my_color = colorchooser.askcolor()[0]
+    my_label = Label(root, text=my_color).pack(pady=10)
+
+my_button = Button(root, text="pick a Color", command=color).pack()
+
+root.mainloop
+
 def register():
     print("Registering Textur Operations Parms")
     bpy.utils.register_class(TexturOperationsParms)
+    # bpy.utils.register_class(OHA_QuickLink_Props)
 
 
 def unregister():
     print("Unregistering Textur Operations Parms")
     bpy.utils.unregister_class(TexturOperationsParms)
+    # bpy.utils.unregister_class(OHA_QuickLink_Props)
