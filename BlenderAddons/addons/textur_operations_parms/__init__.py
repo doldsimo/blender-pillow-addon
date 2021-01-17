@@ -481,7 +481,7 @@ class MainClass(Operator):
                 if(mytool.black_And_White):
                     thresh = mytool.black_And_White_Thresh
                     def fn(x): return 255 if x > thresh else 0
-                    im = im.convert('L').point(fn, mode='1')
+                    im = im.convert('L').point(fn)
                     
                 # Image Correction
                 if(mytool.brightness):
