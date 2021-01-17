@@ -23,11 +23,11 @@ import numpy as np
 from . import sepia
 
 bl_info = {
-    "name": "Textur operations parms",
-    "author": "Simon Dold",
+    "name": "AIOT - Image Editing",
+    "author": "Simon Dold, Christian Micka, Alessio Vinci",
     "version": (1, 0, 0),
     "blender": (2, 90, 0),
-    "description": "Change image with operations",
+    "description": "Edit everything you ever wanted or needed in Blender itself",
     "category": "Mesh",
     "support": "TESTING",
     "location": "View 3D > Edit Mode > Mesh",
@@ -39,7 +39,7 @@ bl_info = {
 
 def UpdatedFunction(self, context):
     print("-------------------In update func...-------------------")
-    WM_OT_HelloWorld.execute(self, context)
+    MainClass.execute(self, context)
     return
 
 class AllProperties(PropertyGroup):
@@ -221,7 +221,6 @@ class Image_Panel(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Image Editing"
-    # bl_context = "objectmode"
 
     @ classmethod
     def poll(self, context):
@@ -242,7 +241,6 @@ class Color_Correction_Panel(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Image Editing"
-    # bl_context = "objectmode"
 
     @ classmethod
     def poll(self, context):
@@ -265,7 +263,6 @@ class Image_Correction_Panel(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Image Editing"
-    # bl_context = "objectmode"
 
     @ classmethod
     def poll(self, context):
@@ -275,8 +272,6 @@ class Image_Correction_Panel(Panel):
         layout = self.layout
         scene = context.scene
         mytool = scene.my_tool
-
-        # TODO: Add Correcturs
 
         layout.prop(mytool, "brightness")
         layout.prop(mytool, "sharpness")
@@ -289,7 +284,6 @@ class Filter_Panel(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Image Editing"
-    # bl_context = "objectmode"
 
     @ classmethod
     def poll(self, context):
@@ -313,7 +307,6 @@ class Transformations_Panel(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Image Editing"
-    # bl_context = "objectmode"
 
     @ classmethod
     def poll(self, context):
@@ -335,7 +328,6 @@ class Magic_Wand_Panel(Panel):
     bl_space_type = "IMAGE_EDITOR"
     bl_region_type = "UI"
     bl_category = "Image Editing"
-    # bl_context = "objectmode"
 
     @ classmethod
     def poll(self, context):
@@ -405,24 +397,24 @@ class ApplyColorCorrection(Operator):
                 im.save(newPath)
 
                 ob = context.view_layer.objects.active
-                # if(ob.active_material is None):
-                print("New Material")
-                mat = bpy.data.materials.new(name="New_Mat")
-                mat.use_nodes = True
-                bsdf = mat.node_tree.nodes["Principled BSDF"]
-                texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
-                texImage.image = bpy.data.images.load(newPath)
-                mat.node_tree.links.new(
-                    bsdf.inputs['Base Color'], texImage.outputs['Color'])
-                # else:
-                #     print("Existing Material")
-                #     mat = ob.active_material
-                #     mat.use_nodes = True
-                #     bsdf = mat.node_tree.nodes["Principled BSDF"]
-                #     texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
-                #     texImage.image = bpy.data.images.load(newPath)
-                #     mat.node_tree.links.new(
-                #         bsdf.inputs['Base Color'], texImage.outputs['Color'])
+                if(ob.active_material is None):
+                    print("New Material")
+                    mat = bpy.data.materials.new(name="New_Mat")
+                    mat.use_nodes = True
+                    bsdf = mat.node_tree.nodes["Principled BSDF"]
+                    texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+                    texImage.image = bpy.data.images.load(newPath)
+                    mat.node_tree.links.new(
+                        bsdf.inputs['Base Color'], texImage.outputs['Color'])
+                else:
+                    print("Existing Material")
+                    mat = ob.active_material
+                    mat.use_nodes = True
+                    bsdf = mat.node_tree.nodes["Principled BSDF"]
+                    texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+                    texImage.image = bpy.data.images.load(newPath)
+                    mat.node_tree.links.new(
+                        bsdf.inputs['Base Color'], texImage.outputs['Color'])
 
                 # Assign it to object
                 ob.data.materials[0] = mat
@@ -457,19 +449,13 @@ class MagicWand(Operator):
         return {'FINISHED'}
 
 
-class WM_OT_HelloWorld(Operator):
+class MainClass(Operator):
     bl_label = "Apply"
     bl_idname = "textur.pillow_image_editing"
 
     def execute(self, context):
         scene = context.scene
         mytool = scene.my_tool
-
-        # print the values to the console
-        # print("Data:")
-        # print("Path:", mytool.root_folder)
-        # print("New Image Name:", mytool.new_image_name)
-        # print("Boolean_2:", "dfadsf")
 
         if(mytool.root_folder):
             imList = mytool.root_folder.rsplit("\\", 1)
@@ -517,24 +503,24 @@ class WM_OT_HelloWorld(Operator):
                 im.save(newPath)
 
                 ob = context.view_layer.objects.active
-                # if(ob.active_material is None):
-                print("New Material")
-                mat = bpy.data.materials.new(name="New_Mat")
-                mat.use_nodes = True
-                bsdf = mat.node_tree.nodes["Principled BSDF"]
-                texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
-                texImage.image = bpy.data.images.load(newPath)
-                mat.node_tree.links.new(
-                    bsdf.inputs['Base Color'], texImage.outputs['Color'])
-                # else:
-                #     print("Existing Material")
-                #     mat = ob.active_material
-                #     mat.use_nodes = True
-                #     bsdf = mat.node_tree.nodes["Principled BSDF"]
-                #     texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
-                #     texImage.image = bpy.data.images.load(newPath)
-                #     mat.node_tree.links.new(
-                #         bsdf.inputs['Base Color'], texImage.outputs['Color'])
+                if(ob.active_material is None):
+                    print("New Material")
+                    mat = bpy.data.materials.new(name="New_Mat")
+                    mat.use_nodes = True
+                    bsdf = mat.node_tree.nodes["Principled BSDF"]
+                    texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+                    texImage.image = bpy.data.images.load(newPath)
+                    mat.node_tree.links.new(
+                        bsdf.inputs['Base Color'], texImage.outputs['Color'])
+                else:
+                    print("Existing Material")
+                    mat = ob.active_material
+                    mat.use_nodes = True
+                    bsdf = mat.node_tree.nodes["Principled BSDF"]
+                    texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+                    texImage.image = bpy.data.images.load(newPath)
+                    mat.node_tree.links.new(
+                        bsdf.inputs['Base Color'], texImage.outputs['Color'])
 
                 # Assign it to object
                 ob.data.materials[0] = mat
@@ -637,7 +623,7 @@ class SelectionWindow:
 
 classes = (
     AllProperties,
-    WM_OT_HelloWorld,
+    MainClass,
     ApplyColorCorrection,
     MagicWand,
     Image_Panel,
