@@ -241,28 +241,28 @@ class Image_Panel(Panel):
         layout.prop(mytool, "new_image_name")
 
 
-class Color_Correction_Panel(Panel):
-    bl_label = "Color Correction"
-    bl_idname = "OBJECT_PT_custom_panel_color_correction"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "Image Editing"
-    # bl_context = "objectmode"
+# class Color_Correction_Panel(Panel):
+#     bl_label = "Color Correction"
+#     bl_idname = "OBJECT_PT_custom_panel_color_correction"
+#     bl_space_type = "VIEW_3D"
+#     bl_region_type = "UI"
+#     bl_category = "Image Editing"
+#     # bl_context = "objectmode"
 
-    @ classmethod
-    def poll(self, context):
-        return context.object is not None
+#     @ classmethod
+#     def poll(self, context):
+#         return context.object is not None
 
-    def draw(self, context):
-        layout = self.layout
-        scene = context.scene
-        mytool = scene.my_tool
+#     def draw(self, context):
+#         layout = self.layout
+#         scene = context.scene
+#         mytool = scene.my_tool
 
-        # TODO: Add Correcturs
+#         # TODO: Add Correcturs
 
-        layout.prop(mytool, "red_value")
-        layout.prop(mytool, "green_value")
-        layout.prop(mytool, "blue_value")
+#         layout.prop(mytool, "red_value")
+#         layout.prop(mytool, "green_value")
+#         layout.prop(mytool, "blue_value")
 
 
 class Image_Correction_Panel(Panel):
@@ -426,6 +426,7 @@ class WM_OT_HelloWorld(Operator):
                     thresh = mytool.black_And_White_Thresh
                     def fn(x): return 255 if x > thresh else 0
                     im = im.convert('L').point(fn, mode='1')
+                # Color Correction
                 # if(mytool.red_value or mytool.green_value or mytool.blue_value):
                 #     [width,height]=im.size
                 #     for x in range(width):
@@ -443,29 +444,27 @@ class WM_OT_HelloWorld(Operator):
                 #             if g < 0:
                 #                 g = 0
 
-                #             print(b)
-                #             print("-----")
                 #             b = round(b * mytool.blue_value)
-                #             print(b)
                 #             if b > 255:
                 #                 b = 255
                 #             if b < 0:
                 #                 b = 0
                 #             value = (r,g,b)
                 #             im.putpixel((x, y), value)
+                # Image Correction
                 if(mytool.brightness):
                     im = ImageEnhance.Brightness(im).enhance(mytool.brightness)
                 if(mytool.sharpness):
                     im = ImageEnhance.Sharpness(im).enhance(mytool.sharpness)
                 if(mytool.contrast):
                     im = ImageEnhance.Contrast(im).enhance(mytool.contrast)
+                
+                # Image Transformation
                 if(mytool.flip_vertically):
                     im = ImageOps.flip(im)
                 if(mytool.flip_horizontally):
                     im = ImageOps.mirror(im)
-
                 im = ImageOps.scale(im, mytool.scale_image, Image.BICUBIC)
-
                 im = im.rotate(mytool.rotate)
                 im.save(newPath)
 
@@ -593,7 +592,7 @@ classes = (
     WM_OT_HelloWorld,
     MagicWand,
     Image_Panel,
-    Color_Correction_Panel,
+    # Color_Correction_Panel,
     Image_Correction_Panel,
     Filter_Panel,
     Transformations_Panel,
