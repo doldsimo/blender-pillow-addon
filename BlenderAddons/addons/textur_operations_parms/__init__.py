@@ -1,7 +1,6 @@
 import bpy
 import ptvsd
 
-
 from PIL import Image
 from PIL import ImageOps
 
@@ -17,7 +16,7 @@ bl_info = {
     "support": "TESTING",
     "location": "View 3D > Edit Mode > Mesh",
 }
-
+ 
 
 ptvsd.enable_attach()
 
