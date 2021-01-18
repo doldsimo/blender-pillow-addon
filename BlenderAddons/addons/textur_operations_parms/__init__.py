@@ -475,17 +475,7 @@ class MainClass(Operator):
                 im = Image.open(mytool.root_folder)
                 print(mytool.root_folder)
                 im = ImageOps.solarize(im, mytool.solarize_threshold)
-                if(mytool.greyscale):
-                    im = ImageOps.grayscale(im)
-                if(mytool.invert):
-                    im = ImageOps.invert(im)
-                if(mytool.sepia):
-                    im = sepia.convert_sepia(im)
-                if(mytool.black_And_White):
-                    thresh = mytool.black_And_White_Thresh
-                    def fn(x): return 255 if x > thresh else 0
-                    im = im.convert('L').point(fn)
-                
+
                 # Color Correction
                 [width,height]=im.size
                 for x in range(width):
@@ -510,6 +500,19 @@ class MainClass(Operator):
                             b = 0
                         value = (r,g,b)
                         im.putpixel((x, y), value)
+
+                if(mytool.greyscale):
+                    im = ImageOps.grayscale(im)
+                if(mytool.invert):
+                    im = ImageOps.invert(im)
+                if(mytool.sepia):
+                    im = sepia.convert_sepia(im)
+                if(mytool.black_And_White):
+                    thresh = mytool.black_And_White_Thresh
+                    def fn(x): return 255 if x > thresh else 0
+                    im = im.convert('L').point(fn)
+                
+        
 
                 # Image Correction
                 if(mytool.brightness):
