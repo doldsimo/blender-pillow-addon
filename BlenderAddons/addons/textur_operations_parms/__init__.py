@@ -47,7 +47,7 @@ class AllProperties(PropertyGroup):
     # Load Image
     root_folder: bpy.props.StringProperty(
         name="Path",
-        description="Some elaborate description",
+        description="´File Explorer to pick wanted image",
         default="",
         maxlen=1024,
         subtype="FILE_PATH",
@@ -56,7 +56,7 @@ class AllProperties(PropertyGroup):
 
     new_image_name: bpy.props.StringProperty(
         name="New name",
-        description="Some elaborate description",
+        description="New image name",
         default="",
         maxlen=500,
         update=UpdatedFunction
@@ -113,8 +113,8 @@ class AllProperties(PropertyGroup):
 
     # Color correction
     red_value: bpy.props.FloatProperty(
-        name="Red portion",
-        description="Red portion factor",
+        name="Red multiplier",
+        description="Red portion multiplier",
         default=1,
         min=0,
         max=1,
@@ -123,8 +123,8 @@ class AllProperties(PropertyGroup):
     )
     
     green_value: bpy.props.FloatProperty(
-        name="Green portion",
-        description="Green portion factor",
+        name="Green multiplier",
+        description="Green portion multiplier",
         default=1,
         min=0,
         max=1,
@@ -133,8 +133,8 @@ class AllProperties(PropertyGroup):
     )
     
     blue_value: bpy.props.FloatProperty(
-        name="Blue portion",
-        description="Blue portion factor",
+        name="Blue multiplier",
+        description="Blue portion multiplier",
         default=1,
         min=0,
         max=1,
@@ -144,8 +144,8 @@ class AllProperties(PropertyGroup):
 
     # Image correction
     brightness: bpy.props.FloatProperty(
-        name="brightness",
-        description="brightness factor",
+        name="brightness multiplier",
+        description="brightness manipulation modifier",
         default=1,
         min=0.01,
         max=1,
@@ -155,8 +155,8 @@ class AllProperties(PropertyGroup):
     )
 
     sharpness: bpy.props.FloatProperty(
-        name="Sharpness",
-        description="Sharpness factor",
+        name="Sharpness multiplier",
+        description="Sharpness manipulation multiplier",
         default=1,
         min=0.01,
         max=10,
@@ -167,7 +167,7 @@ class AllProperties(PropertyGroup):
 
     contrast: bpy.props.FloatProperty(
         name="contrast",
-        description="contrast factor",
+        description="contrast manipulation multiplier",
         default=1,
         min=0.01,
         max=10,
